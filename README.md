@@ -2,6 +2,9 @@
 
 > A Vue.js project
 
+## Node.js version
+v8.9.4
+
 ## Build Setup
 
 ``` bash
