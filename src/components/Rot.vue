@@ -1,6 +1,9 @@
 <template>
     <div class="rot">
         <h1>{{ msg }}</h1>
+
+        <a href="https://www.mizuhobank.co.jp/retail/takarakuji/loto/loto6/index.html" target="_blank" class="beforeNum">before num</a>
+
         <ul class="numList">
             <li v-on:click="toggleActive">1</li>
             <li v-on:click="toggleActive">2</li>
@@ -116,7 +119,20 @@
 <style scoped>
     h1 {
         font-weight: normal;
+        font-size: 20px;
+    }
+
+    .beforeNum {
+        width: 100%;
+        height: 50px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #555;
+        background: aliceblue;
+        border: 1px solid #eef;
         font-size: 18px;
+        text-decoration: none;
     }
 
     ul {
@@ -124,7 +140,7 @@
         list-style: none;
         display: flex;
         flex-wrap: wrap;
-        justify-content: space-around;
+        justify-content: space-between;
         padding: 0;
     }
 
@@ -147,9 +163,11 @@
     .done {
         width: 100%;
         height: 50px;
+        margin-bottom: 30px;
         font-size: 14px;
-        border: 1px solid #333;
-        background: #eee;
+        color: #555;
+        border: 1px solid #fdd;
+        background: #fee;
     }
 
 </style>
