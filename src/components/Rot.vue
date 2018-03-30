@@ -66,7 +66,8 @@
                 selectNums: [],
                 allNums: [],
                 resultNum: '',
-                aggregateNums: []
+                aggregateNums: [],
+                exclusionNums: []
             }
         },
         /**
@@ -112,25 +113,37 @@
                 this.display(pickNums);
             },
             /**
-             * 選択されている数字を除外、
-             * 3回分の結果を順番に除外していき、
-             * その中から6桁を抽出
+             * まず選択されている数字を除外、
+             * 実行する度に出た結果を除外、
+             * その中から毎回6桁を抽出、
+             * いずれ選択肢がなくなる
              */
             exclusionDone: function () {
                 this.setSelectNum();
                 this.setAllNums();
 
-                // 除外→並び替え→選定
-                let exNums = [];
-                let pickNums = [];
-                for (let i = 0; i < 3; i++) {
-                    exNums = this.exclusion(this.allNums, this.selectNums);
-                    exNums = this.shuffle(exNums);
-                    pickNums = this.pick(exNums, 6);
+                // 初回だけ全ての数字を入れる
+                if (this.exclusionNums.length === 0) {
+                    this.exclusionNums = this.allNums;
                 }
+
+                // 選択した数字を除外
+                let exNums = [];
+                exNums = this.exclusion(this.exclusionNums, this.selectNums);
+
+                // 並び替え
+                this.exclusionNums = this.shuffle(exNums);
+
+                // 6桁抽出
+                let pickNums = this.pick(this.exclusionNums, 6);
 
                 // 結果表示
                 this.display(pickNums);
+                console.log(this.exclusionNums);
+
+
+                // 今回の結果を除外
+                this.exclusionNums = this.exclusion(this.exclusionNums, pickNums);
             },
             /**
              * 選択されている数字を除外、
@@ -192,6 +205,7 @@
                 this.allNums = [];
                 this.selectNums = [];
                 this.aggregateNums = [];
+                this.exclusionNums = [];
             },
             /**
              * 結果表示
@@ -200,7 +214,7 @@
                 this.resultNum = this.resultNum + result + '<br>';
             },
             /**
-             * 前回の当選番号を除外
+             * 第一引数の数字から、第二引数の数字を削除
              */
             exclusion: function(allNums, selectNums) {
                 for (let i = 0; i < selectNums.length; i++) {
