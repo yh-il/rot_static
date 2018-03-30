@@ -53,7 +53,8 @@
         <button v-on:click="exclusionDone" class="done">EXCLUSION DONE</button>
         <button v-on:click="exclisionChoiseDone" class="done">EXCLUSION CHOISE DONE</button>
         <button v-on:click="clear" class="clear">CLEAR</button>
-        <p v-html="resultNum" class="resultNum"></p>
+        <!-- <p v-html="resultNum" class="resultNum"></p> -->
+        <table v-html="resultNum" class="resultNum"></table>
     </div>
 </template>
 
@@ -211,7 +212,8 @@
              * 結果表示
              */
             display: function (result) {
-                this.resultNum = this.resultNum + result + '<br>';
+                this.resultNum = this.resultNum + '<tr><td>' + result[0] + '</td>' + '<td>' +result[1] + '</td>' + '<td>' +result[2] + '</td>' + '<td>' +result[3] + '</td>' + '<td>' +result[4] + '</td>' + '<td>' +result[5] + '</td></tr>';
+                // this.resultNum = result;
             },
             /**
              * 第一引数の数字から、第二引数の数字を削除
@@ -324,13 +326,10 @@
     .resultNum {
         width: 100%;
         height: auto;
-        min-height: 200px;
+        min-height: 50px;
         background: #eee;
         margin: 0;
         font-size: 24px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
     }
 
 </style>
