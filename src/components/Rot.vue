@@ -49,7 +49,11 @@
             <li v-on:click="toggleActive">42</li>
             <li v-on:click="toggleActive">43</li>
         </ul>
-        <button v-on:click="done" class="done">DONE</button>
+        <button v-on:click="staticDone" class="done">STATIC DONE</button>
+        <button v-on:click="exclusionDone" class="done">EXCLUSION DONE</button>
+        <button v-on:click="exclisionChoiseDone" class="done">EXCLUSION CHOISE DONE</button>
+        <button v-on:click="clear" class="clear">CLEAR</button>
+        <p v-html="resultNum" class="resultNum"></p>
     </div>
 </template>
 
@@ -58,44 +62,157 @@
         name: 'Rot',
         data() {
             return {
-                msg: 'This is Rot Application'
+                msg: 'This is Rot Application',
+                selectNums: [],
+                allNums: [],
+                resultNum: '',
+                aggregateNums: []
             }
         },
+        /**
+         * ページ読み込み時に実行
+         */
+        created: function () {
+        },
         methods: {
+            /**
+             * クリックしたボタンをアクティブにする
+             */
             toggleActive: function (e) {
-                // クリックしたボタンをアクティブにする
                 if (e.currentTarget.className === 'active') {
                     e.currentTarget.className = '';
                 } else {
                     e.currentTarget.className = 'active';
                 }
             },
-            done: function () {
-                // 選択されている数字を取得
+            /**
+             * 選択されている数字を設定
+             */
+            setSelectNum: function () {
                 let selectNumsDom = document.querySelectorAll('.numList li.active');
                 let selectNums = [];
                 for (let i = 0; i < selectNumsDom.length; i++) {
                     selectNums.push(Number(selectNumsDom[i].textContent));
                 }
-                let allNums = this.exclusion(selectNums);
-                allNums = this.shuffle(allNums);
-                let pickNums = this.pick(allNums, 6);
-                alert(pickNums);
+                this.selectNums = selectNums;
             },
-            exclusion: function(selectNums) {
-                // 前回の当選番号を除外
+            /**
+             * 単純に選択されている数字のみを除外
+             */
+            staticDone: function () {
+                this.setSelectNum();
+                this.setAllNums();
+
+                // 除外→並び替え→選定
+                let exNums = this.exclusion(this.allNums, this.selectNums);
+                exNums = this.shuffle(exNums);
+                let pickNums = this.pick(exNums, 6);
+
+                // 結果表示
+                this.display(pickNums);
+            },
+            /**
+             * 選択されている数字を除外、
+             * 3回分の結果を順番に除外していき、
+             * その中から6桁を抽出
+             */
+            exclusionDone: function () {
+                this.setSelectNum();
+                this.setAllNums();
+
+                // 除外→並び替え→選定
+                let exNums = [];
+                let pickNums = [];
+                for (let i = 0; i < 3; i++) {
+                    exNums = this.exclusion(this.allNums, this.selectNums);
+                    exNums = this.shuffle(exNums);
+                    pickNums = this.pick(exNums, 6);
+                }
+
+                // 結果表示
+                this.display(pickNums);
+            },
+            /**
+             * 選択されている数字を除外、
+             * 5回分の結果を集計し、その中から6桁を抽出。
+             * 最初に集計した結果を繰り返し利用する。
+             */
+            exclisionChoiseDone: function () {
+                this.setSelectNum();
+                this.setAllNums();
+
+                // 選択してる数字を除外
+                let exNums = [];
+                exNums = this.exclusion(this.allNums, this.selectNums);
+
+                // 6桁抽出してresultNumsに合体させていく(5回分)
+                let pickNums = [];
+                let resultNums = [];
+                for (let i = 0; i < 5; i++) {
+                    exNums = this.shuffle(exNums);
+                    pickNums = this.pick(exNums, 6);
+                    resultNums = resultNums.concat(pickNums)
+                }
+
+                // 配列内の重複した数字を削除
+                resultNums = this.arrayUnique(resultNums);
+
+                // 初回だけ抽出結果を格納
+                if (this.aggregateNums.length === 0) {
+                    this.aggregateNums = resultNums;
+                }
+
+                // 並び替え
+                let res = this.shuffle(this.aggregateNums);
+
+                // 6桁抽出
+                res = this.pick(res, 6);
+
+                // ソート
+                res = res.sort();
+
+                // 結果表示
+                this.display(res);
+            },
+            /**
+             * 全ての選択肢の数字を設定
+             */
+            setAllNums: function () {
                 let allNums = [];
                 for (let i = 1; i < 44; i++) {
                     allNums.push(i);
                 }
+                this.allNums = allNums;
+            },
+            /**
+             * 結果をクリア
+             */
+            clear: function () {
+                this.resultNum = '';
+                this.allNums = [];
+                this.selectNums = [];
+                this.aggregateNums = [];
+            },
+            /**
+             * 結果表示
+             */
+            display: function (result) {
+                this.resultNum = this.resultNum + result + '<br>';
+            },
+            /**
+             * 前回の当選番号を除外
+             */
+            exclusion: function(allNums, selectNums) {
                 for (let i = 0; i < selectNums.length; i++) {
                     let index = allNums.indexOf(selectNums[i]);
                     allNums.splice(index, 1);
                 }
                 return allNums;
             },
+            /**
+             * 並び替え
+             */
             shuffle: function(allNums) {
-                // 並び替え
                 for (let i = allNums.length - 1; i > 0; i--) {
                     let r = Math.floor(Math.random() * (i + 1));
                     let tmp = allNums[i];
@@ -104,11 +221,21 @@
                 }
                 return allNums;
             },
+            /**
+             * 指定した桁だけ頭から数字を抜き出す
+             */
             pick: function(allNums, range) {
-                // 指定した桁だけ頭から数字を抜き出す
                 let randomNums = allNums.slice(0, range);
                 randomNums.sort();
                 return randomNums;
+            },
+            /**
+             * 配列の中から重複している要素を削除
+             */
+            arrayUnique: function (array) {
+                return array.filter( function( value, index ) {
+                    return index === array.indexOf( value ) ;
+                } ) ;
             }
         }
     }
@@ -163,11 +290,33 @@
     .done {
         width: 100%;
         height: 50px;
-        margin-bottom: 30px;
+        margin-bottom: 8px;
         font-size: 14px;
         color: #555;
-        border: 1px solid #fdd;
+        border: none;
         background: #fee;
+    }
+
+    .clear {
+        width: 100%;
+        height: 50px;
+        margin: 8px 0 16px;
+        font-size: 14px;
+        color: #555;
+        border: none;
+        background: #efe;
+    }
+
+    .resultNum {
+        width: 100%;
+        height: auto;
+        min-height: 200px;
+        background: #eee;
+        margin: 0;
+        font-size: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
 </style>
