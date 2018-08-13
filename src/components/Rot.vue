@@ -49,9 +49,16 @@
             <li v-on:click="toggleActive">42</li>
             <li v-on:click="toggleActive">43</li>
         </ul>
-        <button v-on:click="staticDone" class="done">STATIC DONE</button>
-        <button v-on:click="exclusionDone" class="done">EXCLUSION DONE</button>
-        <button v-on:click="exclisionChoiseDone" class="done">EXCLUSION CHOISE DONE</button>
+
+        <small>単純に選択されている数字を除外</small>
+        <button v-on:click="staticDone" class="done">STATIC DONE</button><br><br>
+
+        <small>選択されている数字を除外<br>実行する度に出た結果を除外<br>その中から毎回6桁を抽出<br>いずれ選択肢がなくなる</small>
+        <button v-on:click="exclusionDone" class="done">EXCLUSION DONE</button><br><br>
+
+        <small>選択されている数字を除外<br>5回分の結果を集計し<br>その中から6桁を抽出<br>最初に集計した結果を繰り返し利用する。</small>
+        <button v-on:click="exclisionChoiseDone" class="done">EXCLUSION CHOISE DONE</button><br><br>
+
         <button v-on:click="clear" class="clear">CLEAR</button>
         <!-- <p v-html="resultNum" class="resultNum"></p> -->
         <table v-html="resultNum" class="resultNum"></table>
